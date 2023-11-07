@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mobile Biometrics Test Page</title>
+
+    <style>
+        body { padding: 50px; text-align: center; }
+        .biometrics {}
+        button { background: lavender; border: 1px solid purple; padding: 15px 30px; border-radius: 4px; visibility: hidden; }
+    </style>
+</head>
+<body>
+
+<h1>Mobile Biometrics Test Page</h1>
+
+<div class="biometrics">
+    <button id="btn">Biometrics Click</button>
+</div>
+
+
+<script>
+    window.webkit = window.webkit || {};
+    window.NativeAppInterface = window.NativeAppInterface || {};
+
+    const btn = document.querySelector('#btn');
+    const isIOS = () => {
+        const userAgent = window.navigator.userAgent;
+        const result = userAgent.indexOf('iPhone') > -1;
+
+        console.log('IS iOS? ', result);
+        return result;
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+
+    // Load Screen
+    window.onload = () => {
+        console.log('WINDOW LOADED');
+
+        if (isIOS()) {
+            if (window.webkit.messageHandlers
+                && window.webkit.messageHandlers.nativeAppInterface ) {
+                window.webkit.messageHandlers?.nativeAppInterface?.postMessage("onLoginScreenLoad");
+            }
+        } else {
+            if (window.NativeAppInterface.postMessageToNative) {
+                window.NativeAppInterface.postMessageToNative("onLoginScreenLoad");
+            }
+        }
+    }
+
+    // Events
+    window.fromNativeWillShowBiometricsButton = (show) => {
+        btn.style.visibility = (show) ? 'visible' : 'hidden';
+    }
+
+    btn.addEventListener('click', (evt) => {
+        console.log('BUTTON CLICK', evt);
+
+        if(isIOS()) {
+            if (window.webkit.messageHandlers
+                && window.webkit.messageHandlers.nativeAppInterface ) {
+                window.webkit.messageHandlers?.nativeAppInterface?.postMessage("onBiometricsButtonClicked");
+            }
+        } else {
+            if (window.NativeAppInterface.postMessageToNative) {
+                window.NativeAppInterface.postMessageToNative("onBiometricsButtonClicked")
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
